@@ -12,8 +12,12 @@
 
 State* AllocStateArray(FILE* output_file);
 TransitionState* AllocTransitionStateArray(FILE* output_file);
+AcceptState* AllocAcceptState(FILE* output_file);
 char *AllocBuffer(FILE* output_file);
-void FreeMemory(State **states, TransitionState **transition_states, char **buffer);
+void FreeMemory(State **states, 
+                TransitionState **transition_states,
+                AcceptState **accept_states,
+                char **buffer);
 
 
 

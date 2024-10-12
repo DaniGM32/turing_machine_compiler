@@ -70,10 +70,18 @@ void FreeMemory(State **states, TransitionState **transition_states, char **buff
     if (!(*states) || !(*transition_states) || !(*buffer)) {
         return;
     }
+    for (int i = 0; i < MAX_STATES; i++) {
+        free((*states)[i].name);
+    }
     free((*states));
     *states = NULL;
+
+    for (int i = 0; i < MAX_STATES; i++) {
+        free((*transition_states)[i].name);
+    }
     free((*transition_states));
     *transition_states = NULL;
+    
     free((*buffer));
     *buffer = NULL;
 }

@@ -14,10 +14,9 @@ State* AllocStateArray(FILE* output_file);
 TransitionState* AllocTransitionStateArray(FILE* output_file);
 AcceptState* AllocAcceptState(FILE* output_file);
 char *AllocBuffer(FILE* output_file);
-void FreeMemory(State **states, 
-                TransitionState **transition_states,
-                AcceptState **accept_states,
-                char **buffer);
+int VerifyAcceptState(AcceptState *accept_states, int size, char *state_name);
+State* FindNextState(State *states, int size, char *state_name, char character);
+void FreeMemory(State **states, AcceptState **accept_states, char **buffer);
 
 
 

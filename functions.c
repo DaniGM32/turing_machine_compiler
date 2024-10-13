@@ -31,10 +31,12 @@ State* AllocStatesArray(FILE* output_file) {
     }
     for (int i = 0; i < MAX_STATES; i++) {
         states[i].name = (char *)calloc(MAX_LENGTH, sizeof(char));
-        if (!(states[i].name)) {
+        states[i].transition.name = (char *)calloc(MAX_LENGTH, sizeof(char));
+        if (!(states[i].name) || !(states[i].transition.name)) {
             fprintf(output_file, "Allocation failed!");
             for (int j = 0; j < i; j++) {
                 free(states[j].name);
+                free(states[j].transition.name);
             }
             free(states);
             return NULL;
@@ -92,24 +94,18 @@ char* AllocBuffer(FILE* output_file) {
     return array;
 }
 
-void FreeMemory(State **states, 
-                TransitionState **transition_states,
+void FreeMemory(State **states,
                 AcceptState **accept_states,
                 char **buffer) {
-    if (!(*states) || !(*transition_states) || !(*buffer)) {
+    if (!(*states) || !(*buffer)) {
         return;
     }
     for (int i = 0; i < MAX_STATES; i++) {
         free((*states)[i].name);
+        free((*states)[i].transition.name);
     }
     free((*states));
     *states = NULL;
-
-    for (int i = 0; i < MAX_STATES; i++) {
-        free((*transition_states)[i].name);
-    }
-    free((*transition_states));
-    *transition_states = NULL;
 
     for (int i = 0; i < MAX_ACC_STATES; i++) {
         free((*accept_states)[i].name);
@@ -119,4 +115,22 @@ void FreeMemory(State **states,
 
     free((*buffer));
     *buffer = NULL;
+}
+
+int VerifyAcceptState(AcceptState *accept_states, int size, char *state_name) {
+    for (int i = 0; i < size; i++) {
+        if (strcmp(accept_states[i].name, state_name) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+State* FindNextState(State *states, int size, char *state_name, char character) {
+    for (int i = 0; i < size; i++) {
+        if (strcmp(states[i].name, state_name) == 0 && states[i].character == character) {
+            return &states[i];
+        }
+    }
+    return NULL;
 }

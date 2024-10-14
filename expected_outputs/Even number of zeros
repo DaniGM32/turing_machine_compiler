@@ -1,0 +1,8 @@
+/* Can be tested by creating an input_file with the problem description 
+from turing_machine_inputs folder and an output_file with the expected outputs. */
+
+10101 => Accepted
+10111 => Rejected
+101110 => Accepted
+1011100 => Rejected
+

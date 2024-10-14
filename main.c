@@ -17,7 +17,7 @@ int main() {
 
     int states_size, accept_states_size;
     states_size = accept_states_size = 0;
-    char temp_buffer[MAX_LENGTH];
+    char temp_buffer[MAX_LENGTH];       // used for reading lines from the input file
 
     char *machine_name = ReadMachineDescription(input_file, 0);
     char *start_state = ReadMachineDescription(input_file, 1); 
@@ -57,7 +57,7 @@ int main() {
             if (temp_buffer[0] != 'e' && temp_buffer[0] != '\n') {
                 strcpy(buffer, temp_buffer);
                 buffer[strcspn(buffer, "\n")] = '\0';
-                printf("Sequence read into buffer: %s\n", buffer);
+                // printf("Sequence read into buffer: %s\n", buffer);
             } else {
                 printf("No valid sequence found after 'Sequence:'\n");
             }
@@ -65,15 +65,23 @@ int main() {
             printf("Error reading sequence\n");
         }
     }
-    //PrintStates(states, states_size, output_file);
-
-    //where the magic happens, to be implemented
-    int buffer_index = 0;
-    char next_character;
+    // PrintStates(states, states_size, output_file);
+    ModifyBuffer(&buffer);
+    int buffer_index = PADDING;
+    char next_character = buffer[PADDING];
     State *current_state = FindNextState(states, states_size, start_state, next_character); 
-    printf("Current state: %s\n", current_state->name);
-    while(VerifyAcceptState(accept_states, accept_states_size, current_state->name) == 0) {
+
+    int accept_index = -1;
+    while(true) {
+        if (current_state == NULL) {
+            break;
+        }
+        if (VerifyAcceptState(accept_states, accept_states_size, current_state->name) == 1) {
+            accept_index = FindAcceptStateIndex(accept_states, accept_states_size, current_state->name);
+            break;
+        }
         char direction = current_state->transition.direction;
+        buffer[buffer_index] = current_state->transition.written_character;
 
         if (direction == '>') {
             buffer_index++;
@@ -81,6 +89,21 @@ int main() {
             buffer_index--;
         }
 
+        next_character = buffer[buffer_index];
+
+        accept_index = FindAcceptStateIndex(accept_states, accept_states_size, current_state->transition.name);
+        current_state = FindNextState(states, states_size, current_state->transition.name, next_character);
+    }
+    printf("%d\n", accept_index);
+    if (accept_index != -1) {
+        fprintf(output_file, "Accepted\n");
+    } else {
+        fprintf(output_file, "Rejected\n");
+    }
+    for (int i = 0; i < strlen(buffer); i++) {
+        if (buffer[i] != '_') {
+            fprintf(output_file, "%c", buffer[i]);
+        }
     }
 
     free(start_state);

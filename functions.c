@@ -2,10 +2,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 1000
 #define MAX_STATES 1000
 #define MAX_LENGTH 50
 #define MAX_ACC_STATES 50
+#define PADDING 50
 
 typedef struct transition_state {
     char *name;
@@ -94,6 +95,20 @@ char* AllocBuffer(FILE* output_file) {
     return array;
 }
 
+void ModifyBuffer(char **buffer) {
+    int actual_buffer_size = strlen(*buffer);
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (!(*buffer)[i]) {
+            (*buffer)[i] = '_';
+        }
+    }
+    (*buffer)[BUFFER_SIZE - 1] = '\0';
+    for (int i = 0; i < actual_buffer_size; i++) {
+        (*buffer)[i + PADDING] = (*buffer)[i];
+        (*buffer)[i] = '_';
+    }
+}
+
 void FreeMemory(State **states,
                 AcceptState **accept_states,
                 char **buffer) {
@@ -124,6 +139,15 @@ int VerifyAcceptState(AcceptState *accept_states, int size, char *state_name) {
         }
     }
     return 0;
+}
+
+int FindAcceptStateIndex(AcceptState *accept_states, int size, char *state_name) {
+    for (int i = 0; i < size; i++) {
+        if (strcmp(accept_states[i].name, state_name) == 0) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 State* FindNextState(State *states, int size, char *state_name, char character) {

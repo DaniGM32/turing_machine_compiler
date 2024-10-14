@@ -1,0 +1,29 @@
+name: Could be multiple words
+init: q0
+accept: qAccept
+
+q0,0
+q0,0,>
+
+q0,1
+q1,1,>
+
+q1,0
+q2,0,>
+
+q1,1
+q0,1,>
+
+q2,0
+q1,0,>
+
+q2,1
+q2,1,>
+
+q0,_
+qAccept,_,-
+
+Sequence:
+10101
+
+e

@@ -44,17 +44,21 @@ int main() {
     free(token);
 
     while (fgets(temp_buffer, sizeof(temp_buffer), input_file)) {
-        if (buffer[0] == 'e') {
+        if (temp_buffer[0] == 'e') {
             break;
         }
-        sscanf(temp_buffer, "%[^,],%c", states[states_size].name, &states[states_size].character);
-
-        fgets(temp_buffer, sizeof(temp_buffer), input_file);
-        sscanf(temp_buffer, "%[^,],%c,%c", 
+        if (sscanf(temp_buffer, "%49[^,],%c", states[states_size].name, &states[states_size].character) != 2) {
+            fprintf(output_file, "Error reading state and character\n");
+            continue; // continue if the line is not in the correct format
+        }
+        if (fgets(temp_buffer, sizeof(temp_buffer), input_file) == NULL || 
+            sscanf(temp_buffer, "%49[^,],%c,%c", 
                states[states_size].transition.name,
                &states[states_size].transition.written_character,
-               &states[states_size].transition.direction);
-
+               &states[states_size].transition.direction) != 3) {
+            fprintf(output_file, "Error reading transition\n");
+            continue; // continue if the line is not in the correct format
+        }
         states_size++;
 
          // skip the empty line between transitions
@@ -79,6 +83,8 @@ int main() {
 
     // }
 
+    free(start_state);
+    free(machine_name);
     FreeMemory(&states, &accept_states, &buffer);
     fclose(input_file);
     fclose(output_file);

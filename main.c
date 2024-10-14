@@ -19,20 +19,9 @@ int main() {
     states_size = accept_states_size = 0;
     char temp_buffer[MAX_LENGTH];
 
-    char *machine_name = (char *)calloc(MAX_LENGTH, sizeof(char));
-    fgets(temp_buffer, sizeof(temp_buffer), input_file);
-    sscanf(temp_buffer, "name: %[^\n]", machine_name);
-    //printf("%s\n", machine_name);
-
-    char *start_state = (char *)calloc(MAX_LENGTH, sizeof(char));
-    fgets(temp_buffer, sizeof(temp_buffer), input_file);
-    sscanf(temp_buffer, "init: %s", start_state);
-    // printf("%s\n", start_state);
-
-    char *accept_line = (char *)calloc(MAX_LENGTH, sizeof(char));
-    fgets(temp_buffer, sizeof(temp_buffer), input_file);
-    sscanf(temp_buffer, "accept: %[^\n]", accept_line);
-    // printf("%s\n", accept_line);
+    char *machine_name = ReadMachineDescription(input_file, 0);
+    char *start_state = ReadMachineDescription(input_file, 1); 
+    char *accept_line = ReadMachineDescription(input_file, 2);
 
     char *token = strtok(accept_line, ", ");
     while(token) {
@@ -42,13 +31,13 @@ int main() {
     }
     free(accept_line);
     free(token);
-
+      
     while (fgets(temp_buffer, sizeof(temp_buffer), input_file)) {
-        if (temp_buffer[0] == 'e') {
+        if (strstr(temp_buffer, "Sequence:") != NULL) {
             break;
         }
         if (sscanf(temp_buffer, "%49[^,],%c", states[states_size].name, &states[states_size].character) != 2) {
-            fprintf(output_file, "Error reading state and character\n");
+            printf("Error reading state and character\n");
             continue; // continue if the line is not in the correct format
         }
         if (fgets(temp_buffer, sizeof(temp_buffer), input_file) == NULL || 
@@ -56,32 +45,43 @@ int main() {
                states[states_size].transition.name,
                &states[states_size].transition.written_character,
                &states[states_size].transition.direction) != 3) {
-            fprintf(output_file, "Error reading transition\n");
+            printf("Error reading transition\n");
             continue; // continue if the line is not in the correct format
         }
         states_size++;
-
-         // skip the empty line between transitions
+        // skip the empty line between transitions
         fgets(temp_buffer, sizeof(temp_buffer), input_file);
     }
-    printf("%d\n", states_size);
-    for (int i = 0; i < states_size; i++) {
-        printf("State %d: %s, %c -> %s, %c, %c\n", i,
-               states[i].name,
-               states[i].character,
-               states[i].transition.name,
-               states[i].transition.written_character,
-               states[i].transition.direction);
+    if (strstr(temp_buffer, "Sequence:") != NULL) {
+        if (fgets(temp_buffer, sizeof(temp_buffer), input_file)) {
+            if (temp_buffer[0] != 'e' && temp_buffer[0] != '\n') {
+                strcpy(buffer, temp_buffer);
+                buffer[strcspn(buffer, "\n")] = '\0';
+                printf("Sequence read into buffer: %s\n", buffer);
+            } else {
+                printf("No valid sequence found after 'Sequence:'\n");
+            }
+        } else {
+            printf("Error reading sequence\n");
+        }
     }
+    //PrintStates(states, states_size, output_file);
 
     //where the magic happens, to be implemented
-    // int buffer_index = 0;
-    // char next_character;
-    // State *current_state = FindNextState(states, states_size, start_state, next_character); 
-    // while(VerifyAcceptState(accept_states, accept_states_size, current_state->name) == 0) {
-    //     char direction = current_state->transition.direction;
+    int buffer_index = 0;
+    char next_character;
+    State *current_state = FindNextState(states, states_size, start_state, next_character); 
+    printf("Current state: %s\n", current_state->name);
+    while(VerifyAcceptState(accept_states, accept_states_size, current_state->name) == 0) {
+        char direction = current_state->transition.direction;
 
-    // }
+        if (direction == '>') {
+            buffer_index++;
+        } else if (direction == '<') {
+            buffer_index--;
+        }
+
+    }
 
     free(start_state);
     free(machine_name);

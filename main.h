@@ -17,6 +17,5 @@ char *AllocBuffer(FILE* output_file);
 int VerifyAcceptState(AcceptState *accept_states, int size, char *state_name);
 State* FindNextState(State *states, int size, char *state_name, char character);
 void FreeMemory(State **states, AcceptState **accept_states, char **buffer);
-
-
-
+void PrintStates(State *state, int size, FILE *output_file);
+char* ReadMachineDescription(FILE *input_file, int type);

@@ -134,3 +134,28 @@ State* FindNextState(State *states, int size, char *state_name, char character) 
     }
     return NULL;
 }
+
+void PrintStates(State *state, int size, FILE *output_file) {
+    for (int i = 0; i < size; i++) {
+        fprintf(output_file, "State %d: %s, %c -> %s, %c, %c\n", i,
+                state[i].name,
+                state[i].character,
+                state[i].transition.name,
+                state[i].transition.written_character,
+                state[i].transition.direction);
+    }
+}
+
+char* ReadMachineDescription(FILE *input_file, int type) {
+    char *data = (char *)calloc(MAX_LENGTH, sizeof(char));
+    char temp_buffer[MAX_LENGTH];
+    fgets(temp_buffer, sizeof(temp_buffer), input_file);
+    if (type == 0) {
+        sscanf(temp_buffer, "name: %[^\n]", data);
+    } else if (type == 1) {
+        sscanf(temp_buffer, "init: %[^\n]", data);
+    } else if (type == 2) {
+        sscanf(temp_buffer, "accept: %[^\n]", data);
+    }
+    return data;
+}

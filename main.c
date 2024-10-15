@@ -76,6 +76,9 @@ int main() {
         if (current_state == NULL) {
             break;
         }
+        if (buffer_index < 0 || buffer_index >= BUFFER_SIZE) {
+            break;
+        }
         if (VerifyAcceptState(accept_states, accept_states_size, current_state->name) == 1) {
             accept_index = FindAcceptStateIndex(accept_states, accept_states_size, current_state->name);
             break;

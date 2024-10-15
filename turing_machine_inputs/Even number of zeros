@@ -1,4 +1,4 @@
-name: Could be multiple words
+name: Even number of zeros
 init: q0
 accept: qAccept
 
